@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- About Text -->
+        <div class="col-md-8">
+            <h1 class="display-4 mb-4">About Telepsychiatry Platform</h1>
+            <p class="lead">We are dedicated to providing accessible and quality psychiatric care for individuals in Malaysia.</p>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <h3>Our Mission</h3>
+                    <p>To make mental health care accessible and convenient for everyone, regardless of their location or circumstances.</p>
+                </div>
+                <div class="col-md-6">
+                    <h3>Our Values</h3>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check-circle text-primary me-2"></i>Professionalism</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i>Accessibility</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i>Privacy</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i>Quality Care</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="col-md-4">
+            <h3 class="mb-4">Our Team</h3>
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Licensed Professionals</h4>
+                    <p class="card-text">Our platform connects you with licensed psychiatrists who are:</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-user-md me-2"></i>Board Certified</li>
+                        <li><i class="fas fa-certificate me-2"></i>Experienced</li>
+                        <li><i class="fas fa-heart me-2"></i>Compassionate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4">How It Works</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
+                            <h4 class="card-title">Register</h4>
+                            <p class="card-text">Create an account and complete your profile.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-alt fa-3x mb-3 text-primary"></i>
+                            <h4 class="card-title">Schedule</h4>
+                            <p class="card-text">Choose a convenient time for your consultation.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-video fa-3x mb-3 text-primary"></i>
+                            <h4 class="card-title">Consult</h4>
+                            <p class="card-text">Connect with your psychiatrist for a secure video consultation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center mt-5">
+        <h3>Ready to Get Started?</h3>
+        <p class="lead mb-4">Join our platform today and take the first step towards better mental health.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Register Now</a>
+            <a href="{% url 'telepsych_sessions:contact' %}" class="btn btn-outline-primary btn-lg">Contact Us</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

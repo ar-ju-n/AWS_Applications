@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Session Feedback</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Session with:</strong> {{ session.psychiatrist.user.email }}<br>
+                    <strong>Date & Time:</strong> {{ session.scheduled_time|date:"F j, Y H:i" }}</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Rating:</label>
+                            {{ form.rating }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Feedback:</label>
+                            {{ form.feedback }}
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit Review</button>
+                        <a href="{% url 'telepsych_sessions:patient_dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

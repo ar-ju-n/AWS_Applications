@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Welcome to Telepsychiatry Platform</h1>
+        <p class="lead mb-4">Access professional psychiatric care from the comfort of your home</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">Login</a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg">Register</a>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-md fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Professional Care</h3>
+                    <p class="card-text">Connect with licensed psychiatrists who specialize in treating depression and mental health issues.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-video fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Virtual Consultations</h3>
+                    <p class="card-text">Schedule and attend secure video sessions from anywhere at any time.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Flexible Scheduling</h3>
+                    <p class="card-text">Choose convenient appointment times that work best for your schedule.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="text-center mt-5">
+        <h2 class="mb-4">About Us</h2>
+        <p class="lead">Our mission is to provide accessible and quality psychiatric care to individuals in Malaysia. We understand the challenges of seeking help for mental health issues and aim to make the process as comfortable and convenient as possible.</p>
+        <a href="{% url 'telepsych_sessions:about' %}" class="btn btn-primary">Learn More</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .badge-status {
+        font-size: 0.95em;
+        padding: 0.5em 0.8em;
+        border-radius: 0.5em;
+    }
+    .action-btn {
+        margin-right: 0.2em;
+    }
+    @media (max-width: 600px) {
+        .table-responsive { font-size: 0.93em; }
+    }
+</style>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Welcome, {{ user.email }}</h5>
+                <p class="card-text">Patient Dashboard</p>
+                <div class="d-grid">
+                    <a href="{% url 'telepsych_sessions:book_session' %}" class="btn btn-primary">Book New Session</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">My Sessions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <form method="get" class="d-flex">
+                            <select name="status" class="form-select me-2">
+                                <option value="">All Status</option>
+                                {% for status in Session.Status.choices %}
+                                    <option value="{{ status.0 }}" {% if status.0 == status_filter %}selected{% endif %}>{{ status.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <form method="get" class="d-flex">
+                            <select name="psychiatrist" class="form-select me-2">
+                                <option value="">All Psychiatrists</option>
+                                {% for psychiatrist in available_psychiatrists %}
+                                    <option value="{{ psychiatrist.user.email }}" {% if psychiatrist.user.email == psychiatrist_filter %}selected{% endif %}>
+                                        {{ psychiatrist.user.email }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{% url 'telepsych_sessions:book_session' %}" class="btn btn-success">Book New Session</a>
+                    </div>
+                </div>
+                {% if sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Psychiatrist</th>
+                                    <th>Scheduled Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in sessions %}
+                                    <tr>
+                                        <td>{{ session.psychiatrist.user.email }}</td>
+                                        <td>{{ session.scheduled_time|date:"F j, Y, P" }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ session.get_status_badge }}">
+                                                {{ session.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if session.status == 'COMPLETED' %}
+                                                <a href="{% url 'telepsych_sessions:session_review' session.id %}" class="btn btn-sm btn-primary">Review</a>
+                                            {% elif session.status == 'ACTIVE' %}
+                                                <a href="{% url 'telepsych_sessions:session_chat' session.id %}" class="btn btn-sm btn-primary">Chat</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                            </a>
+                                        {% endif %}
+                                        {% if session.status == 'COMPLETED' and not session.review %}
+                                            <a href="{% url 'telepsych_sessions:submit_review' session.id %}" class="btn btn-outline-success btn-sm action-btn" title="Leave Feedback">
+                                                <i class="bi bi-star"></i> Review
+                                            </a>
+                                        {% elif session.status == 'COMPLETED' and session.review %}
+                                            <span class="badge bg-success">Reviewed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No upcoming sessions scheduled.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

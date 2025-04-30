@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Researcher Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Edit Researcher Profile</h2>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.institution.label_tag }}
+                                {{ form.institution }}
+                                {% if form.institution.errors %}
+                                    <div class="text-danger">
+                                        {{ form.institution.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.specialization.label_tag }}
+                                {{ form.specialization }}
+                                <small class="form-text text-muted">
+                                    {{ form.specialization.help_text }}
+                                </small>
+                                {% if form.specialization.errors %}
+                                    <div class="text-danger">
+                                        {{ form.specialization.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                {{ form.research_interests.label_tag }}
+                                {{ form.research_interests }}
+                                {% if form.research_interests.errors %}
+                                    <div class="text-danger">
+                                        {{ form.research_interests.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                {{ form.publications.label_tag }}
+                                {{ form.publications }}
+                                {% if form.publications.errors %}
+                                    <div class="text-danger">
+                                        {{ form.publications.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                        <a href="{% url 'researcher_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

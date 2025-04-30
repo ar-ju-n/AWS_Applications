@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Book New Session</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'telepsych_sessions:book_session' %}">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Please correct the following errors:
+                            {{ form.errors.as_text }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        {{ form.psychiatrist.label_tag }}
+                        {{ form.psychiatrist }}
+                        {% if form.psychiatrist.help_text %}
+                            <small class="form-text text-muted">
+                                {{ form.psychiatrist.help_text }}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.scheduled_time.label_tag }}
+                        {{ form.scheduled_time }}
+                        {% if form.scheduled_time.help_text %}
+                            <small class="form-text text-muted">
+                                {{ form.scheduled_time.help_text }}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.notes.label_tag }}
+                        {{ form.notes }}
+                        {% if form.notes.help_text %}
+                            <small class="form-text text-muted">
+                                {{ form.notes.help_text }}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Book Session</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

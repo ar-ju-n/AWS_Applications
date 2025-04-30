@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">My Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>User Information</h6>
+                            <p><strong>Name:</strong> {{ user.name }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if profile %}
+                                <h6>Profile Information</h6>
+                                {% if user.role == 'PSYCHIATRIST' %}
+                                    <p><strong>Specialization:</strong> {{ profile.specialization }}</p>
+                                    <p><strong>License Number:</strong> {{ profile.license_number }}</p>
+                                    <p><strong>Availability:</strong> 
+                                        <ul>
+                                            {% for slot in profile.availability %}
+                                                <li>{{ slot }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </p>
+                                    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+                                {% elif user.role == 'PATIENT' %}
+                                    <p><strong>Age:</strong> {{ profile.age }}</p>
+                                    <p><strong>Gender:</strong> {{ profile.get_gender_display }}</p>
+                                    <p><strong>Phone:</strong> {{ profile.phone }}</p>
+                                {% endif %}
+                            {% else %}
+                                <p class="text-muted">Profile not yet completed. Please complete your profile.</p>
+                                <a href="{% url 'telepsych_sessions:complete_profile' %}" class="btn btn-primary">Complete Profile</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'telepsych_sessions:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

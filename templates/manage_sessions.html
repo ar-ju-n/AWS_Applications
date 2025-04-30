@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+<style>
+    .badge-status {
+        font-size: 0.95em;
+        padding: 0.5em 0.8em;
+        border-radius: 0.5em;
+    }
+    .action-btn {
+        margin-right: 0.2em;
+    }
+    @media (max-width: 600px) {
+        .table-responsive { font-size: 0.93em; }
+    }
+</style>
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Welcome, {{ psychiatrist.user.email }}</h5>
+                <p class="card-text">Manage Your Sessions</p>
+                <p><strong>Specialization:</strong> {{ psychiatrist.specialization }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">All Sessions</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Duration</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in sessions %}
+                            <tr>
+                                <td>{{ session.patient.user.email }}</td>
+                                <td>{{ session.scheduled_time|date:"F j, Y H:i" }}</td>
+                                <td>
+                                    <span class="badge badge-status
+                                        {% if session.status == 'PENDING' %}bg-warning text-dark
+                                        {% elif session.status == 'ACCEPTED' %}bg-success
+                                        {% elif session.status == 'REJECTED' %}bg-danger
+                                        {% elif session.status == 'COMPLETED' %}bg-info text-dark
+                                        {% elif session.status == 'CANCELLED' %}bg-secondary
+                                        {% endif %}">
+                                        {{ session.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ session.duration }}</td>
+                                <td>{{ session.notes }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        {% if session.status == 'PENDING' %}
+                                            <form method="post" action="{% url 'telepsych_sessions:accept_session' session.id %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success action-btn" title="Accept">
+                                                    <i class="bi bi-check-circle"></i> Accept
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{% url 'telepsych_sessions:reject_session' session.id %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger action-btn" title="Reject">
+                                                    <i class="bi bi-x-circle"></i> Reject
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if session.status in 'PENDING ACCEPTED' %}
+                                            <form method="post" action="{% url 'telepsych_sessions:cancel_session' session.id %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-secondary action-btn" title="Cancel">
+                                                    <i class="bi bi-slash-circle"></i> Cancel
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

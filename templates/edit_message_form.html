@@ -1,0 +1,7 @@
+<form id="edit-message-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.message }}
+    {{ form.file }}
+    <button type="submit" class="btn btn-success btn-sm">Save</button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="closeEditModal()">Cancel</button>
+</form>

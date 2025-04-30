@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Welcome, {{ user.email }}</h5>
+                <p class="card-text">Psychiatrist Dashboard</p>
+                <p><strong>Specialization:</strong> {{ psychiatrist.specialization }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Pending Sessions</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="mb-3">
+                    <div class="input-group">
+                        <select class="form-select" name="status">
+                            <option value="">All Statuses</option>
+                            <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                            <option value="ACCEPTED" {% if status_filter == 'ACCEPTED' %}selected{% endif %}>Accepted</option>
+                            <option value="REJECTED" {% if status_filter == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                            <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                            <option value="CANCELLED" {% if status_filter == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary">Filter</button>
+                    </div>
+                </form>
+                {% if pending_sessions %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Date & Time</th>
+                                    <th>Duration</th>
+                                    <th>Notes</th>
+                                    <th>Status</th>
+                                    <th>Review</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in pending_sessions %}
+                                <tr>
+                                    <td>{{ session.patient.user.email }}</td>
+                                    <td>{{ session.scheduled_time|date:"F j, Y H:i" }}</td>
+                                    <td>{{ session.duration }}</td>
+                                    <td>{{ session.notes }}</td>
+                                    <td>
+                                        <span class="badge badge-status
+                                            {% if session.status == 'PENDING' %}bg-warning text-dark
+                                            {% elif session.status == 'ACCEPTED' %}bg-success
+                                            {% elif session.status == 'REJECTED' %}bg-danger
+                                            {% elif session.status == 'COMPLETED' %}bg-info text-dark
+                                            {% elif session.status == 'CANCELLED' %}bg-secondary
+                                            {% endif %}">
+                                            {{ session.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if session.status == 'COMPLETED' and session.review %}
+                                            <span class="badge bg-success">Rated: {{ session.review.rating }}/5</span><br>
+                                            <small>{{ session.review.feedback|default:'No comment' }}</small>
+                                        {% elif session.status == 'COMPLETED' %}
+                                            <span class="badge bg-secondary">No Review</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            {% if session.status == 'ACCEPTED' %}
+                                                <a href="{% url 'telepsych_sessions:session_chat' session.id %}" class="btn btn-outline-info btn-sm action-btn" title="Message">
+                                                    <i class="bi bi-chat-dots"></i> Message
+                                                </a>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-sm btn-success" 
+                                                    hx-post="{% url 'accept_session' session.id %}"
+                                                    hx-target="this"
+                                                    hx-swap="outerHTML">
+                                                Accept
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    hx-post="{% url 'reject_session' session.id %}"
+                                                    hx-target="this"
+                                                    hx-swap="outerHTML">
+                                                Reject
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No pending sessions.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+[
+  {
+    "model": "accounts.customuser",
+    "pk": 1,
+    "fields": {
+      "username": "psy1",
+      "email": "psy1@example.com",
+      "role": "PSYCHIATRIST",
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 2,
+    "fields": {
+      "username": "psy2",
+      "email": "psy2@example.com",
+      "role": "PSYCHIATRIST",
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 3,
+    "fields": {
+      "username": "pat1",
+      "email": "pat1@example.com",
+      "role": "PATIENT",
+      "is_active": true
+    }
+  }
+]

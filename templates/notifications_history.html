@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Notification History</h5>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        <ul class="list-group">
+                            {% for notification in notifications %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center {% if not notification.is_read %}list-group-item-info{% endif %}">
+                                    <div>
+                                        {{ notification.message }}
+                                        <br>
+                                        <small class="text-muted">{{ notification.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                    {% if not notification.is_read %}
+                                        <span class="badge bg-primary">Unread</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Read</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No notifications found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

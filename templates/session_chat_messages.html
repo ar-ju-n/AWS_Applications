@@ -1,0 +1,57 @@
+{% load emoji_filters %}
+{% if messages %}
+<div class="chat-messages">
+    {% for msg in messages %}
+        <div class="message-container {% if msg.sender == user %}sent{% else %}received{% endif %} mb-3">
+            <div class="message-bubble">
+                <div class="message-content">
+                    {% if msg.message %}
+                        <div class="message-text">
+                            {{ msg.message|linebreaksbr|safe|emoji_replace }}
+                        </div>
+                    {% endif %}
+                    {% if msg.file %}
+                        <div class="message-attachment mt-2">
+                            {% with file_url=msg.file.url|lower %}
+                                {% if file_url|slice:"-4:" == '.jpg' or file_url|slice:"-5:" == '.jpeg' or file_url|slice:"-4:" == '.png' or file_url|slice:"-4:" == '.gif' %}
+                                    <img src="{{ msg.file.url }}" alt="Image" class="message-image">
+                                {% else %}
+                                    <a href="{% url 'telepsych_sessions:serve_chat_file' filename=msg.file.name %}" target="_blank" class="attachment-link">
+                                        <i class="bi bi-paperclip me-2"></i>Attachment
+                                    </a>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="message-meta text-muted small">
+                    <span class="message-time">{{ msg.timestamp|date:"H:i" }}</span>
+                    {% if msg.sender == user %}
+                        <span class="message-status ms-2">
+                            {% if msg.is_read %}
+                                <i class="bi bi-check2-all" title="Read"></i>
+                            {% else %}
+                                <i class="bi bi-check" title="Delivered"></i>
+                            {% endif %}
+                        </span>
+                        <div class="message-actions ms-2">
+                            <button class="edit-message-btn" data-id="{{ msg.id }}" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="delete-message-btn" data-id="{{ msg.id }}" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-chat-dots text-muted" style="font-size: 4rem;"></i>
+    <p class="text-muted mt-3">No messages yet. Start the conversation!</p>
+</div>
+{% endif %}
+<div id="editMessageModal" class="modal" tabindex="-1"></div>

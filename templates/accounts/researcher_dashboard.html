@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Researcher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Researcher Dashboard</h2>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Institution:</strong> {{ researcher.institution }}</p>
+                    <p><strong>Specialization:</strong> {{ researcher.specialization }}</p>
+                    <p><strong>Research Interests:</strong> {{ researcher.research_interests }}</p>
+                    <p><strong>Publications:</strong> {{ researcher.publications }}</p>
+                    <a href="{% url 'researcher_profile' %}" class="btn btn-primary">Edit Profile</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Available Sessions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Psychiatrist</th>
+                                    <th>Status</th>
+                                    <th>Scheduled Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in sessions %}
+                                <tr>
+                                    <td>{{ session.patient.user.name }}</td>
+                                    <td>{{ session.psychiatrist.user.name }}</td>
+                                    <td>{{ session.get_status_display }}</td>
+                                    <td>{{ session.scheduled_time|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'telepsych_sessions:session_detail' session.id %}" class="btn btn-sm btn-info">View Details</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No sessions available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

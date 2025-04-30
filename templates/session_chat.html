@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load emoji_filters %}
+{% block content %}
+<style>
+    .chat-messages {
+        padding: 1rem;
+    }
+    
+    .message-container {
+        margin-bottom: 1rem;
+    }
+    
+    .message-bubble {
+        max-width: 80%;
+        background: #f8f9fa;
+        border-radius: 1rem;
+        padding: 1rem;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .message-container.sent .message-bubble {
+        background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%);
+        color: white;
+    }
+    
+    .message-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    .message-image {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 0.5rem;
+        object-fit: cover;
+    }
+    
+    .attachment-link {
+        color: #6c757d;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .attachment-link:hover {
+        color: #495057;
+        text-decoration: underline;
+    }
+    
+    .message-meta {
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .message-status i {
+        font-size: 0.8rem;
+    }
+    
+    .message-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .edit-message-btn, .delete-message-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem;
+        color: inherit;
+        display: none;
+    }
+    
+    .message-bubble:hover .edit-message-btn,
+    .message-bubble:hover .delete-message-btn {
+        display: block;
+    }
+    
+    .edit-message-btn:hover {
+        color: #ffc107;
+    }
+    
+    .delete-message-btn:hover {
+        color: #dc3545;
+    }
+    
+    /* Empty state styling */
+    .bi-chat-dots {
+        opacity: 0.3;
+    }
+    
+    /* Notification popup styling */
+    .notification-popup {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: none;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Notification Popup -->
+            <div id="newMessageNotification" class="notification-popup">
+                New message received!
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Session Chat</h5>
+                    <small>With: {% if session.patient.user == user %}{{ session.psychiatrist.user.email }}{% else %}{{ session.patient.user.email }}{% endif %}</small>
+                </div>
+                <div class="input-group mb-2">
+                    <input type="text" id="chat-search" class="form-control" placeholder="Search messages...">
+                    <button type="button" class="btn btn-outline-secondary" id="chat-search-btn"><i class="bi bi-search"></i></button>
+                </div>
+                <div class="card-body" style="max-height: 350px; overflow-y: auto;" id="chat-messages">
+                    {% include 'session_chat_messages.html' %}
+                </div>
+                <div class="card-footer">
+                    <div id="typing-indicator" class="text-muted small mb-2" style="display:none;"><i class="bi bi-pencil"></i> The other user is typing...</div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="input-group mb-2">
+                            <button type="button" id="emoji-btn" class="btn btn-outline-secondary" title="Insert emoji"><i class="bi bi-emoji-smile"></i></button>
+                            {{ form.message }}
+                            {{ form.file }}
+                            <button type="submit" class="btn btn-primary mt-2 float-end">Send</button>
+                        </div>
+                    </form>
+                    <a href="{% url 'telepsych_sessions:patient_dashboard' %}" class="btn btn-link">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/emoji-button.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/emoji-button.min.js"></script>
+<script>
+    $(document).ready(function() {
+        let lastMessageId = null;
+        let hasNewMessage = false;
+
+        function showNotification(message) {
+            const notification = document.getElementById('newMessageNotification');
+            if (notification) {
+                notification.textContent = message;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function fetchMessages() {
+            $.get(window.location.pathname + '?ajax=1', function(data) {
+                $('#chat-messages').html(data);
+                const messages = $('#chat-messages .message-container');
+                const latestMessage = messages.last();
+                
+                if (latestMessage && latestMessage.attr('data-id') !== lastMessageId) {
+                    lastMessageId = latestMessage.attr('data-id');
+                    if (!hasNewMessage) {
+                        hasNewMessage = true;
+                        showNotification('New message received!');
+                    }
+                }
+                
+                var chatBody = document.getElementById('chat-messages');
+                chatBody.scrollTop = chatBody.scrollHeight;
+            });
+        }
+
+        setInterval(fetchMessages, 3000); // Poll every 3s
+        fetchMessages();
+        
+        // Reset new message flag when user scrolls
+        $('#chat-messages').on('scroll', function() {
+            hasNewMessage = false;
+        });
+
+        // Typing indicator functionality
+        function setTyping(isTyping) {
+            $.post("{% url 'telepsych_sessions:set_typing_status' session.id %}", {
+                is_typing: isTyping ? 1 : 0,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            });
+        }
+
+        let typingTimeout;
+        $('#id_message').on('input', function() {
+            setTyping(true);
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => setTyping(false), 3000);
+        });
+
+        $('#chat-search-btn').click(function() {
+            const searchTerm = $('#chat-search').val().toLowerCase();
+            $('#chat-messages .message-container').each(function() {
+                const messageText = $(this).find('.message-text').text().toLowerCase();
+                if (messageText.includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // Edit message modal
+        $(document).on('click', '.edit-message-link', function(e) {
+            e.preventDefault();
+            var msgId = $(this).data('id');
+            $.get('{% url "telepsych_sessions:edit_message" 0 %}'.replace('0', msgId), function(html) {
+                $('#editMessageModal').html(html).modal('show');
+            });
+        });
+
+        $(document).on('submit', '#edit-message-form', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post(form.attr('action'), form.serialize(), function(data) {
+                if(data.success) {
+                    $('#editMessageModal').modal('hide');
+                    fetchMessages();
+                }
+            });
+        });
+
+        // Delete message functionality
+        $(document).on('click', '.delete-message-link', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to delete this message?')) {
+                var msgId = $(this).data('id');
+                $.post('{% url "telepsych_sessions:delete_message" 0 %}'.replace('0', msgId), {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }, function(data) {
+                    if(data.success) {
+                        fetchMessages();
+                    }
+                });
+            }
+        });
+
+        // Initialize emoji picker
+        const picker = new EmojiButton({ theme: 'auto' });
+        const trigger = document.querySelector('#emoji-btn');
+        const input = document.querySelector('#id_message');
+        trigger.addEventListener('click', () => {
+            picker.togglePicker(trigger);
+        });
+        picker.on('emoji', emoji => {
+            input.value += emoji;
+            input.dispatchEvent(new Event('input'));
+        });
+
+        // Poll typing status
+        function pollTyping() {
+            $.get("{% url 'telepsych_sessions:get_typing_status' session.id %}", function(data) {
+                if(data.typing) {
+                    $('#typing-indicator').show();
+                } else {
+                    $('#typing-indicator').hide();
+                }
+            });
+        }
+        setInterval(pollTyping, 1500);
+        pollTyping();
+    });
+</script>
+{% endblock %}
