@@ -1,3 +1,11 @@
 Django>=4.2,<5.0
 psycopg2-binary>=2.9
-python-dotenv
+python-dotenv>=1.0.0
+Pillow>=10.0.0  # for image handling
+python-dateutil>=2.8.2  # for date handling
+django-crispy-forms>=2.0  # for form styling
+django-filter>=23.2  # for filtering queries
+django-cors-headers>=4.3.0  # for CORS support
+whitenoise>=6.4.0  # for serving static files in production
+python-jose[cryptography]>=3.3.0  # for JWT support
+pyjwt>=2.8.0  # for JWT support
