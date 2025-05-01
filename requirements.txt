@@ -26,5 +26,5 @@ aws-xray-sdk>=2.8.0  # For AWS X-Ray tracing
 django-rest-framework>=3.14.0  # For REST API development
 django-cors-middleware>=1.5.0  # Enhanced CORS support
 django-oidc-provider>=1.1.0  # For OpenID Connect support
-# django-cors-middleware>=1.5.0  # Enhanced CORS support
-# django-oidc-provider>=1.1.0  # For OpenID Connect support
+django-cors-middleware>=1.5.0  # Enhanced CORS support
+django-oidc-provider>=1.1.0  # For OpenID Connect support
