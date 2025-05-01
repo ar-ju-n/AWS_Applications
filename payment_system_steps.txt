@@ -1,0 +1,50 @@
+Payment System Integration Steps
+================================
+
+1. Set Up Stripe Account
+------------------------
+- Sign up for a Stripe account at https://stripe.com.
+- Obtain your Stripe API keys (publishable key and secret key).
+
+2. Install Stripe Package
+------------------------
+- Add 'stripe>=5.0.0' to your requirements.txt.
+- Run 'pip install -r requirements.txt' to install the package.
+
+3. Configure Stripe in Django
+----------------------------
+- In settings.py, add (but comment out for now):
+    - STRIPE_PUBLISHABLE_KEY = 'your_publishable_key'
+    - STRIPE_SECRET_KEY = 'your_secret_key'
+
+4. Create Payment Models
+-----------------------
+- Create a Payment model to store payment details (amount, status, patient, psychiatrist, etc.).
+- Run migrations: python manage.py makemigrations and python manage.py migrate.
+
+5. Create Payment Views and Templates
+------------------------------------
+- Create views for payment processing (e.g., create_payment, confirm_payment).
+- Create templates for payment forms and confirmation pages.
+
+6. Integrate Stripe Checkout
+---------------------------
+- Use Stripe Checkout for a secure payment experience.
+- Add JavaScript to handle Stripe Checkout on the frontend.
+
+7. Test Payments
+---------------
+- Use Stripe's test mode to simulate payments.
+- Test the entire payment flow locally.
+
+8. Go Live
+----------
+- Uncomment Stripe settings in settings.py.
+- Switch to live Stripe API keys.
+- Your payment system is now live!
+
+---
+
+**Note:**
+- Keep Stripe settings commented out until you are ready to go live.
+- Test everything in Stripe's test mode before switching to live mode. 

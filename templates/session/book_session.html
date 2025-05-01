@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Book Session</h2>
+<p>Psychiatrist: {{ psychiatrist.username }}</p>
+<p>Hourly Rate: ${{ psychiatrist.profile.hourly_rate }}</p>
+<form method="post">
+    {% csrf_token %}
+    <label for="duration">Duration (hours):</label>
+    <input type="number" name="duration" step="0.5" min="0.5" required>
+    <button type="submit">Book Session</button>
+</form>
+<p>Please pay the psychiatrist after booking the session.</p>
+<form action="{% url 'create_payment' psychiatrist.id %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="amount" value="{{ psychiatrist.profile.hourly_rate }}">
+    <button type="submit">Pay Now</button>
+</form>
+{% endblock %} 

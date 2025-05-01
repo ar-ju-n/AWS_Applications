@@ -10,6 +10,8 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
+                        {{ user_form.as_p }}
+                        {{ profile_form.as_p }}
                         <div class="row">
                             <div class="col-md-6">
                                 <h6>User Information</h6>
@@ -97,6 +99,15 @@
                                         {% if profile_form.date_of_birth.errors %}
                                             <div class="text-danger">
                                                 {{ profile_form.date_of_birth.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ profile_form.gender.label_tag }}
+                                        {{ profile_form.gender }}
+                                        {% if profile_form.gender.errors %}
+                                            <div class="text-danger">
+                                                {{ profile_form.gender.errors|striptags }}
                                             </div>
                                         {% endif %}
                                     </div>

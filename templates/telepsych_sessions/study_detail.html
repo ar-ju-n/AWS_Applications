@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ study.title }} - Study Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'telepsych_sessions:research_studies' %}">Research Studies</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ study.title }}</li>
+                </ol>
+            </nav>
+
+            <!-- Study Overview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Study Overview</h5>
+                    <span class="badge bg-{{ study.get_status_badge }}">{{ study.get_status_display }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Description:</strong></p>
+                            <p>{{ study.description }}</p>
+                            <p><strong>Inclusion Criteria:</strong></p>
+                            <p>{{ study.inclusion_criteria }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Exclusion Criteria:</strong></p>
+                            <p>{{ study.exclusion_criteria }}</p>
+                            <p><strong>Participants:</strong> {{ study.current_participants }}/{{ study.target_participants }}</p>
+                            <p><strong>Duration:</strong> {{ study.start_date|date:"Y-m-d" }} to {{ study.end_date|date:"Y-m-d"|default:"Ongoing" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Survey Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Create New Survey</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.title.label_tag }}
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.questions.label_tag }}
+                            <div id="questions-list"></div>
+                            <div class="input-group mb-2">
+                                <input type="text" id="new-question" class="form-control" placeholder="Enter a question">
+                                <button type="button" id="add-question" class="btn btn-outline-secondary">Add Question</button>
+                            </div>
+                            <input type="hidden" name="questions" id="questions-json">
+                            <small class="form-text text-muted">Add questions one by one. You can remove or reorder them before saving.</small>
+                            {% if form.questions.errors %}
+                                <div class="text-danger">{{ form.questions.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.is_active }}
+                            {{ form.is_active.label_tag }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Survey</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Surveys List -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Study Surveys</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Responses</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for survey in surveys %}
+                                <tr>
+                                    <td>{{ survey.title }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ survey.is_active|yesno:'success,danger' }}">
+                                            {{ survey.is_active|yesno:'Active,Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ survey.created_at|date:"Y-m-d" }}</td>
+                                    <td>{{ survey.responses.count }}</td>
+                                    <td>
+                                        <a href="{% url 'telepsych_sessions:survey_responses' study.id survey.id %}" class="btn btn-sm btn-info">View Responses</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No surveys found. Create your first survey above.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Study Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'telepsych_sessions:manage_participants' study.id %}" class="btn btn-primary">Manage Participants</a>
+                        <a href="{% url 'telepsych_sessions:study_data' study.id %}" class="btn btn-info">View Study Data</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let questions = [];
+    const questionsList = document.getElementById('questions-list');
+    const questionsJson = document.getElementById('questions-json');
+    const addBtn = document.getElementById('add-question');
+    const newQuestionInput = document.getElementById('new-question');
+    const form = document.querySelector('form[method="post"]');
+
+    function renderQuestions() {
+        questionsList.innerHTML = '';
+        questions.forEach((q, idx) => {
+            const div = document.createElement('div');
+            div.className = 'input-group mb-1';
+            div.innerHTML = `
+                <input type="text" class="form-control" value="${q.question}" readonly>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(${idx})">Remove</button>
+            `;
+            questionsList.appendChild(div);
+        });
+        questionsJson.value = JSON.stringify(questions);
+    }
+
+    window.removeQuestion = function(idx) {
+        questions.splice(idx, 1);
+        renderQuestions();
+    }
+
+    addBtn.onclick = function(e) {
+        e.preventDefault();
+        const val = newQuestionInput.value.trim();
+        if (val) {
+            questions.push({question: val});
+            newQuestionInput.value = '';
+            renderQuestions();
+        }
+    }
+
+    // On form submit, update hidden field
+    form.onsubmit = function() {
+        questionsJson.value = JSON.stringify(questions);
+        return true;
+    }
+
+    // If editing, load initial questions from the form (if any)
+    try {
+        const initial = JSON.parse({{ form.questions.value|default:'"[]"'|safe }});
+        if (Array.isArray(initial)) {
+            questions = initial;
+            renderQuestions();
+        }
+    } catch (e) {}
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Surveys for {{ participant.patient.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Surveys for {{ participant.patient.user.get_full_name }}</h4>
+                    <div class="text-muted">Study: {{ study.title }}</div>
+                </div>
+                <div class="card-body">
+                    {% if surveys %}
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Survey Title</th>
+                                    <th>Status</th>
+                                    <th>Submitted At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for survey in surveys %}
+                                    <tr>
+                                        <td>{{ survey.title }}</td>
+                                        <td>
+                                            {% if responses.survey.id %}
+                                                Completed
+                                            {% else %}
+                                                Not Completed
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if responses.survey.id %}
+                                                {{ responses.survey.id.submitted_at|date:'Y-m-d H:i' }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if responses.survey.id %}
+                                                <button class="btn btn-sm btn-info" data-bs-toggle="collapse" data-bs-target="#resp-{{ survey.id }}">View Answers</button>
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% if responses.survey.id %}
+                                    <tr class="collapse" id="resp-{{ survey.id }}">
+                                        <td colspan="4">
+                                            <strong>Answers:</strong>
+                                            <ul>
+                                                {% for answer in responses.survey.id.answers %}
+                                                    <li><strong>{{ answer.question }}:</strong> {{ answer.answer }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No surveys found for this study.</p>
+                    {% endif %}
+                    <a href="{% url 'telepsych_sessions:manage_participants' study.id %}" class="btn btn-secondary">Back to Participants</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

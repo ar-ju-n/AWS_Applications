@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ survey.title }} - Response Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:research_studies' %}">Research Studies</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:study_detail' study.id %}">{{ study.title }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:survey_responses' study.id survey.id %}">{{ survey.title }} Responses</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Response Details</li>
+                </ol>
+            </nav>
+
+            <!-- Response Overview -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Response Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Participant:</strong> {{ response.participant.patient.user.get_full_name }}</p>
+                            <p><strong>Survey:</strong> {{ survey.title }}</p>
+                            <p><strong>Submitted:</strong> {{ response.submitted_at|date:"Y-m-d H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Time Taken:</strong> {{ response.time_taken|default:"N/A" }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-success">Completed</span>
+                            </p>
+                            <p><strong>IP Address:</strong> {{ response.ip_address|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Details -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Response Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Response</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for answer in response.answers %}
+                                <tr>
+                                    <td>{{ answer.question }}</td>
+                                    <td>
+                                        {% if answer.question_type == 'text' %}
+                                            {{ answer.answer }}
+                                        {% elif answer.question_type == 'choice' %}
+                                            <span class="badge bg-info">{{ answer.answer }}</span>
+                                        {% elif answer.question_type == 'scale' %}
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ answer.answer_percentage }}%;" 
+                                                     aria-valuenow="{{ answer.answer }}" 
+                                                     aria-valuemin="1" 
+                                                     aria-valuemax="{{ answer.max_value }}">
+                                                    {{ answer.answer }}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ answer.question_type|title }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-4 d-flex justify-content-between">
+                <a href="{% url 'accounts:survey_responses' study.id survey.id %}" class="btn btn-secondary">
+                    Back to Survey Responses
+                </a>
+                <a href="{% url 'accounts:participant_detail' study.id response.participant.id %}" class="btn btn-info">
+                    View Participant Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Medications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>My Medications</h2>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Add New Medication</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Add Medication</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3>Current Medications</h3>
+            {% for medication in medications %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ medication.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Dosage:</strong> {{ medication.dosage }}</p>
+                    <p><strong>Frequency:</strong> {{ medication.frequency }}</p>
+                    <p><strong>Start Date:</strong> {{ medication.start_date }}</p>
+                    {% if medication.end_date %}
+                    <p><strong>End Date:</strong> {{ medication.end_date }}</p>
+                    {% endif %}
+                    <p><strong>Prescribed By:</strong> {{ medication.prescribed_by }}</p>
+                    <p><strong>Notes:</strong> {{ medication.notes }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                No medications found. Add your first medication using the form above.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

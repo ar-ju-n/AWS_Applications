@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Health Records{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>My Health Records</h2>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Add New Health Record</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3>Existing Records</h3>
+            {% for record in health_records %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ record.record_type }}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Date:</strong> {{ record.date }}</p>
+                    <p><strong>Description:</strong> {{ record.description }}</p>
+                    {% if record.file %}
+                    <p><strong>Attachment:</strong> <a href="{{ record.file.url }}" target="_blank">View File</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                No health records found. Add your first record using the form above.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

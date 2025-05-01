@@ -1,0 +1,126 @@
+AWS Hosting Steps for Telepsychiatry Django System
+==================================================
+
+1. Prepare Your Django Project
+-----------------------------
+- Ensure your code is production-ready (requirements.txt, static/media separation, etc.).
+- Add AWS-related packages to requirements.txt (gunicorn, django-storages, boto3, psycopg2-binary).
+- Do NOT activate AWS-specific settings in settings.py yet.
+
+2. Set Up AWS Services
+----------------------
+- Create an AWS account if you don't have one.
+
+A. EC2 (for Django app hosting)
+   - Launch an EC2 instance (Ubuntu recommended).
+   - Open necessary ports (22 for SSH, 80/443 for HTTP/HTTPS).
+   - SSH into your instance and update/install Python, pip, virtualenv, git, etc.
+
+B. S3 (for static and media files)
+   - Create an S3 bucket for static files.
+   - Create a separate S3 bucket for media files (optional).
+   - Set appropriate permissions/policies for your buckets.
+
+C. RDS (for PostgreSQL database)
+   - Launch an RDS PostgreSQL instance.
+   - Set security group to allow access from your EC2 instance.
+   - Note the endpoint, username, password, and database name.
+
+D. (Optional) Route 53 for custom domain
+   - Register/manage your domain and set up DNS records.
+
+3. Configure Django for AWS
+---------------------------
+- In settings.py, add (but comment out for now):
+    - AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+    - AWS_STORAGE_BUCKET_NAME, AWS_S3_REGION_NAME
+    - DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    - STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    - DATABASES['default'] for RDS
+- Set ALLOWED_HOSTS to your EC2 public DNS or custom domain.
+- Set DEBUG = False for production.
+
+4. Deploy Your Code to EC2
+--------------------------
+- Clone your repo to the EC2 instance.
+- Set up a Python virtual environment and install requirements.
+- Run migrations: python manage.py migrate
+- Collect static files: python manage.py collectstatic
+- Test locally: python manage.py runserver 0.0.0.0:8000
+
+5. Set Up Gunicorn and Nginx
+----------------------------
+- Install and configure gunicorn to serve your Django app.
+- Install and configure nginx as a reverse proxy to gunicorn.
+- Set up systemd service for gunicorn for auto-restart.
+
+6. (Optional) Set Up HTTPS
+--------------------------
+- Use Let's Encrypt (certbot) to generate SSL certificates.
+- Configure nginx to use SSL.
+
+7. Go Live
+----------
+- Uncomment AWS and production settings in settings.py.
+- Restart gunicorn and nginx.
+- Your app is now live on AWS!
+
+8. (Optional) Set Up CI/CD
+--------------------------
+- Use GitHub Actions, CodePipeline, or similar for automated deployment.
+
+9. Set Up AWS API Gateway
+-------------------------
+A. Prerequisites
+   - Install Zappa: `pip install zappa`
+   - Configure AWS credentials
+   - Ensure all AWS packages are in requirements.txt
+
+B. Create zappa_settings.json
+   ```json
+   {
+       "dev": {
+           "app_function": "telepsych.wsgi.application",
+           "aws_region": "us-east-1",
+           "profile_name": "default",
+           "project_name": "telepsych-api",
+           "runtime": "python3.9",
+           "s3_bucket": "your-bucket-name",
+           "api_gateway_stage": "dev"
+       }
+   }
+   ```
+
+C. Deploy to API Gateway
+   ```bash
+   # Initialize Zappa
+   zappa init
+   
+   # Deploy
+   zappa deploy dev
+   
+   # Update (after changes)
+   zappa update dev
+   
+   # Undeploy
+   zappa undeploy dev
+   ```
+
+D. Configure API Gateway
+   - Set up CORS for your frontend domain
+   - Configure API Gateway stages (dev, prod)
+   - Set up API keys and usage plans if needed
+   - Configure throttling and caching
+
+E. Monitor and Debug
+   - Set up AWS CloudWatch for monitoring
+   - Enable X-Ray tracing
+   - Configure CloudTrail for API audit
+   - Set up API Gateway usage metrics
+
+---
+
+**Note:**
+- Keep all AWS-specific settings commented out or in a separate settings_prod.py until you are ready to deploy.
+- Test everything locally before switching to AWS services.
+- Ensure proper security groups and IAM roles are configured for API Gateway access.

@@ -1,5 +1,5 @@
 Django>=4.2,<5.0
-psycopg2-binary>=2.9
+mysqlclient>=2.1.1
 python-dotenv>=1.0.0
 Pillow>=10.0.0  # for image handling
 python-dateutil>=2.8.2  # for date handling
@@ -9,3 +9,15 @@ django-cors-headers>=4.3.0  # for CORS support
 whitenoise>=6.4.0  # for serving static files in production
 python-jose[cryptography]>=3.3.0  # for JWT support
 pyjwt>=2.8.0  # for JWT support
+reportlab>=4.0.0  # for PDF generation
+gunicorn
+boto3
+django-storages
+stripe>=5.0.0
+
+# AWS API Gateway Integration (Uncomment when ready for deployment)
+# zappa>=0.50.0  # For serverless deployment
+# aws-xray-sdk>=2.8.0  # For AWS X-Ray tracing
+# django-rest-framework>=3.14.0  # For REST API development
+# django-cors-middleware>=1.5.0  # Enhanced CORS support
+# django-oidc-provider>=1.1.0  # For OpenID Connect support

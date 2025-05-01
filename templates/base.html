@@ -77,21 +77,51 @@
             {% endfor %}
         </div>
     {% endif %}
-    <!-- Add JavaScript to auto-hide success messages -->
+    <div id="toast-container" style="position: fixed; top: 1rem; right: 1rem; z-index: 9999;"></div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get all success messages that are not in chat messages
-            const successMessages = document.querySelectorAll('.alert-success:not(#chat-messages *)');
-            
-            // Hide each success message after 1 second
-            successMessages.forEach(message => {
+            // Auto-dismiss all alert messages after 3 seconds
+            const alerts = document.querySelectorAll('.alert:not(#chat-messages *)');
+            alerts.forEach(alert => {
                 setTimeout(() => {
-                    message.style.opacity = '0';
+                    alert.style.opacity = '0';
                     setTimeout(() => {
-                        message.remove();
-                    }, 300); // Wait for animation
-                }, 1000);
+                        alert.remove();
+                    }, 400); // Wait for fade out
+                }, 3000);
             });
+
+            // Real-time chat notification polling
+            let lastUnreadChatCount = null;
+            function showToast(message) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center text-bg-primary border-0 show';
+                toast.style.minWidth = '220px';
+                toast.style.marginBottom = '0.5rem';
+                toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 400);
+                }, 4000);
+                toast.querySelector('.btn-close').onclick = () => toast.remove();
+            }
+            function pollUnreadChatCount() {
+                fetch('/api/unread_chat_count/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (lastUnreadChatCount !== null && data.unread_chat_count > lastUnreadChatCount) {
+                            showToast('You have a new chat message!');
+                        }
+                        lastUnreadChatCount = data.unread_chat_count;
+                    });
+            }
+            if (window.location.pathname !== '/accounts/login/' && window.location.pathname !== '/accounts/register/') {
+                pollUnreadChatCount();
+                setInterval(pollUnreadChatCount, 5000);
+            }
         });
     </script>
     <!-- Navigation -->
@@ -103,6 +133,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'telepsych_sessions:about' %}">About Us</a>
+                    </li>
                     {% if user.is_authenticated %}
                         {% if user.role == 'PATIENT' %}
                             <li class="nav-item">
@@ -117,6 +150,10 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'telepsych_sessions:manage_sessions' %}">Manage Sessions</a>
+                            </li>
+                        {% elif user.role == 'RESEARCHER' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'telepsych_sessions:researcher_dashboard' %}">Dashboard</a>
                             </li>
                         {% endif %}
                     {% endif %}

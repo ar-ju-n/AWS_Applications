@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Research Studies{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Research Studies</h2>
+            
+            <!-- Create New Study Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Create New Study</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.title.label_tag }}
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="text-danger">{{ form.title.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.target_participants.label_tag }}
+                                {{ form.target_participants }}
+                                {% if form.target_participants.errors %}
+                                    <div class="text-danger">{{ form.target_participants.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.start_date.label_tag }}
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger">{{ form.start_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.end_date.label_tag }}
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger">{{ form.end_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.inclusion_criteria.label_tag }}
+                                {{ form.inclusion_criteria }}
+                                {% if form.inclusion_criteria.errors %}
+                                    <div class="text-danger">{{ form.inclusion_criteria.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.exclusion_criteria.label_tag }}
+                                {{ form.exclusion_criteria }}
+                                {% if form.exclusion_criteria.errors %}
+                                    <div class="text-danger">{{ form.exclusion_criteria.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Study</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Studies List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">My Studies</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Participants</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for study in studies %}
+                                <tr>
+                                    <td>{{ study.title }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ study.get_status_badge }}">
+                                            {{ study.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ study.current_participants }}/{{ study.target_participants }}</td>
+                                    <td>{{ study.start_date|date:"Y-m-d" }}</td>
+                                    <td>{{ study.end_date|date:"Y-m-d"|default:"-" }}</td>
+                                    <td>
+                                        <a href="{% url 'telepsych_sessions:study_detail' study.id %}" class="btn btn-sm btn-info">View</a>
+                                        <a href="{% url 'telepsych_sessions:study_data' study.id %}" class="btn btn-sm btn-primary">Data</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No studies found. Create your first study above.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

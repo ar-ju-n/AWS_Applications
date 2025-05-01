@@ -1,89 +1,99 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container mt-5">
     <div class="row">
-        <!-- About Text -->
-        <div class="col-md-8">
-            <h1 class="display-4 mb-4">About Telepsychiatry Platform</h1>
-            <p class="lead">We are dedicated to providing accessible and quality psychiatric care for individuals in Malaysia.</p>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <h3>Our Mission</h3>
-                    <p>To make mental health care accessible and convenient for everyone, regardless of their location or circumstances.</p>
+        <div class="col-md-12">
+            <h1 class="text-center mb-4">About Us</h1>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2>Understanding Depression</h2>
                 </div>
-                <div class="col-md-6">
-                    <h3>Our Values</h3>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check-circle text-primary me-2"></i>Professionalism</li>
-                        <li><i class="fas fa-check-circle text-primary me-2"></i>Accessibility</li>
-                        <li><i class="fas fa-check-circle text-primary me-2"></i>Privacy</li>
-                        <li><i class="fas fa-check-circle text-primary me-2"></i>Quality Care</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Team Section -->
-        <div class="col-md-4">
-            <h3 class="mb-4">Our Team</h3>
-            <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Licensed Professionals</h4>
-                    <p class="card-text">Our platform connects you with licensed psychiatrists who are:</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-user-md me-2"></i>Board Certified</li>
-                        <li><i class="fas fa-certificate me-2"></i>Experienced</li>
-                        <li><i class="fas fa-heart me-2"></i>Compassionate</li>
+                    <p>Depression is a common and serious medical illness that negatively affects how you feel, the way you think, and how you act. It can lead to a variety of emotional and physical problems and can decrease your ability to function at work and at home.</p>
+                    
+                    <h3 class="mt-4">Symptoms of Depression</h3>
+                    <ul>
+                        <li>Persistent sad, anxious, or "empty" mood</li>
+                        <li>Feelings of hopelessness or pessimism</li>
+                        <li>Irritability</li>
+                        <li>Feelings of guilt, worthlessness, or helplessness</li>
+                        <li>Loss of interest or pleasure in hobbies and activities</li>
+                        <li>Decreased energy or fatigue</li>
+                        <li>Moving or talking more slowly</li>
+                        <li>Difficulty concentrating, remembering, or making decisions</li>
+                        <li>Difficulty sleeping, early-morning awakening, or oversleeping</li>
+                        <li>Appetite and/or weight changes</li>
+                        <li>Thoughts of death or suicide, or suicide attempts</li>
                     </ul>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- How It Works -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2 class="mb-4">How It Works</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
-                            <h4 class="card-title">Register</h4>
-                            <p class="card-text">Create an account and complete your profile.</p>
-                        </div>
-                    </div>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2>How to Deal with Depression</h2>
                 </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-calendar-alt fa-3x mb-3 text-primary"></i>
-                            <h4 class="card-title">Schedule</h4>
-                            <p class="card-text">Choose a convenient time for your consultation.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-video fa-3x mb-3 text-primary"></i>
-                            <h4 class="card-title">Consult</h4>
-                            <p class="card-text">Connect with your psychiatrist for a secure video consultation.</p>
-                        </div>
-                    </div>
+                <div class="card-body">
+                    <h3>Professional Help</h3>
+                    <p>Seeking professional help is crucial in managing depression. Our platform connects you with qualified psychiatrists who can provide:</p>
+                    <ul>
+                        <li>Professional diagnosis and treatment plans</li>
+                        <li>Medication management when necessary</li>
+                        <li>Cognitive Behavioral Therapy (CBT)</li>
+                        <li>Support and guidance throughout your journey</li>
+                    </ul>
+
+                    <h3 class="mt-4">Self-Care Strategies</h3>
+                    <ul>
+                        <li>Maintain a regular sleep schedule</li>
+                        <li>Engage in regular physical activity</li>
+                        <li>Eat a healthy, balanced diet</li>
+                        <li>Practice relaxation techniques (meditation, deep breathing)</li>
+                        <li>Set realistic goals and break tasks into smaller steps</li>
+                        <li>Stay connected with friends and family</li>
+                        <li>Challenge negative thoughts with positive ones</li>
+                    </ul>
+
+                    <h3 class="mt-4">Support Systems</h3>
+                    <p>Building a strong support system is essential:</p>
+                    <ul>
+                        <li>Connect with understanding friends and family</li>
+                        <li>Join support groups</li>
+                        <li>Consider online communities for additional support</li>
+                        <li>Don't hesitate to ask for help when needed</li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Call to Action -->
-    <div class="text-center mt-5">
-        <h3>Ready to Get Started?</h3>
-        <p class="lead mb-4">Join our platform today and take the first step towards better mental health.</p>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Register Now</a>
-            <a href="{% url 'telepsych_sessions:contact' %}" class="btn btn-outline-primary btn-lg">Contact Us</a>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2>Our Mission</h2>
+                </div>
+                <div class="card-body">
+                    <p>At Telepsychiatry, we are committed to providing accessible mental health care to those in need. Our platform connects patients with qualified psychiatrists through secure video sessions, making mental health care more accessible and convenient.</p>
+                    <p>We believe that everyone deserves access to quality mental health care, and we're here to support you on your journey to better mental health.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2>Get Help Now</h2>
+                </div>
+                <div class="card-body">
+                    <p>If you or someone you know is experiencing symptoms of depression, don't hesitate to reach out for help. Our team of qualified psychiatrists is here to support you.</p>
+                    {% if not user.is_authenticated %}
+                        <div class="text-center mt-4">
+                            <a href="{% url 'accounts:register' %}" class="btn btn-primary me-2">Register Now</a>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-secondary">Login</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center mt-4">
+                            <a href="{% url 'telepsych_sessions:book_session' %}" class="btn btn-primary">Book a Session</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>

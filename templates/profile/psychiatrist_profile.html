@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Psychiatrist Profile</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="hourly_rate">Hourly Rate:</label>
+    <input type="number" name="hourly_rate" step="0.01" value="{{ profile.hourly_rate }}" required>
+    <button type="submit">Save Profile</button>
+</form>
+{% endblock %} 

@@ -13,6 +13,16 @@
     @media (max-width: 600px) {
         .table-responsive { font-size: 0.93em; }
     }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    .survey-link:hover {
+        transform: scale(1.03);
+        background: #e3f2fd;
+        box-shadow: 0 4px 12px rgba(33,150,243,0.15);
+        text-decoration: none;
+    }
 </style>
 <div class="row">
     <div class="col-md-4">
@@ -89,19 +99,15 @@
                                             {% elif session.status == 'ACTIVE' %}
                                                 <a href="{% url 'telepsych_sessions:session_chat' session.id %}" class="btn btn-sm btn-primary">Chat</a>
                                             {% endif %}
+                                            {% if session.status == 'COMPLETED' and not session.review %}
+                                                <a href="{% url 'telepsych_sessions:submit_review' session.id %}" class="btn btn-outline-success btn-sm action-btn" title="Leave Feedback">
+                                                    <i class="bi bi-star"></i> Review
+                                                </a>
+                                            {% elif session.status == 'COMPLETED' and session.review %}
+                                                <span class="badge bg-success">Reviewed</span>
+                                            {% endif %}
                                         </td>
                                     </tr>
-                                            </a>
-                                        {% endif %}
-                                        {% if session.status == 'COMPLETED' and not session.review %}
-                                            <a href="{% url 'telepsych_sessions:submit_review' session.id %}" class="btn btn-outline-success btn-sm action-btn" title="Leave Feedback">
-                                                <i class="bi bi-star"></i> Review
-                                            </a>
-                                        {% elif session.status == 'COMPLETED' and session.review %}
-                                            <span class="badge bg-success">Reviewed</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -111,6 +117,43 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- Public Research Studies and Surveys Section -->
+        {% if public_surveys %}
+            <div class="mb-3">
+                <div class="d-grid gap-2">
+                    {% for item in public_surveys %}
+                        {% for survey in item.surveys %}
+                            <a href="{% url 'telepsych_sessions:take_survey' item.study.id survey.id %}" class="btn btn-outline-success w-100 mb-1">
+                                Take Survey: {{ survey.title }} ({{ item.study.title }})
+                            </a>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        <div id="surveys-section"></div>
+        {% if all_active_surveys %}
+        <div class="card mb-4 shadow" style="max-width: 600px; margin: 0 auto; animation: fadeIn 1s;">
+            <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="bi bi-clipboard-check" style="font-size: 2rem; margin-right: 10px;"></i>
+                <h5 class="mb-0">Available Surveys</h5>
+            </div>
+            <div class="card-body">
+                {% for survey in all_active_surveys %}
+                    <a href="{% url 'telepsych_sessions:take_survey' survey.study.id survey.id %}"
+                       class="btn btn-outline-primary w-100 mb-2 d-flex align-items-center survey-link"
+                       style="transition: transform 0.2s;">
+                        <i class="bi bi-clipboard-check" style="font-size: 1.5rem; margin-right: 10px;"></i>
+                        <span>
+                            <strong>{{ survey.title }}</strong>
+                            <small class="text-muted">({{ survey.study.title }})</small>
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

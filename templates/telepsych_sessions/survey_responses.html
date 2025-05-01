@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ survey.title }} - Responses{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'telepsych_sessions:research_studies' %}">Research Studies</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'telepsych_sessions:study_detail' study.id %}">{{ study.title }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ survey.title }} Responses</li>
+                </ol>
+            </nav>
+
+            <!-- Survey Overview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Survey Overview</h5>
+                    <span class="badge bg-{{ survey.is_active|yesno:'success,danger' }}">
+                        {{ survey.is_active|yesno:'Active,Inactive' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Description:</strong> {{ survey.description }}</p>
+                    <p><strong>Total Responses:</strong> {{ responses.count }}</p>
+                    <p><strong>Created:</strong> {{ survey.created_at|date:"Y-m-d" }}</p>
+                </div>
+            </div>
+
+            <!-- Response Analysis -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Response Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for question, stats in question_stats.items %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ question }}</h6>
+                                    {% if stats.type == 'text' %}
+                                        <p class="text-muted">Text responses cannot be analyzed automatically</p>
+                                    {% elif stats.type == 'choice' %}
+                                        <canvas id="chart-{{ forloop.counter }}" height="200"></canvas>
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', function() {
+                                                var ctx = document.getElementById('chart-{{ forloop.counter }}').getContext('2d');
+                                                new Chart(ctx, {
+                                                    type: 'bar',
+                                                    data: {
+                                                        labels: {{ stats.labels|safe }},
+                                                        datasets: [{
+                                                            label: 'Responses',
+                                                            data: {{ stats.data|safe }},
+                                                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                                            borderWidth: 1
+                                                        }]
+                                                    },
+                                                    options: {
+                                                        responsive: true,
+                                                        scales: {
+                                                            y: {
+                                                                beginAtZero: true,
+                                                                ticks: {
+                                                                    stepSize: 1
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            });
+                                        </script>
+                                    {% elif stats.type == 'scale' %}
+                                        <p>Average: {{ stats.average|floatformat:2 }}</p>
+                                        <p>Median: {{ stats.median }}</p>
+                                        <p>Mode: {{ stats.mode }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Individual Responses -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Individual Responses</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Participant</th>
+                                    <th>Date</th>
+                                    <th>Responses</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for response in responses %}
+                                <tr>
+                                    <td>{{ response.participant.patient.user.get_full_name }}</td>
+                                    <td>{{ response.completed_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#response-{{ response.id }}">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="p-0">
+                                        <div class="collapse" id="response-{{ response.id }}">
+                                            <div class="card card-body">
+                                                <ul class="list-unstyled">
+                                                    {% for answer in response.answers %}
+                                                    <li class="mb-2">
+                                                        <strong>{{ answer.question }}:</strong>
+                                                        <span>{{ answer.answer }}</span>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No responses found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

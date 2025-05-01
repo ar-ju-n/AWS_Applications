@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Sessions{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>My Sessions</h2>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Book New Session</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Book Session</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3>Upcoming Sessions</h3>
+            {% for session in sessions %}
+                {% if session.is_upcoming %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Session with Dr. {{ session.psychiatrist.user.get_full_name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Date & Time:</strong> {{ session.scheduled_time }}</p>
+                        <p><strong>Duration:</strong> {{ session.duration }}</p>
+                        <p><strong>Status:</strong> {{ session.get_status_display }}</p>
+                        {% if session.notes %}
+                        <p><strong>Notes:</strong> {{ session.notes }}</p>
+                        {% endif %}
+                        {% if session.video_link %}
+                        <p><strong>Video Link:</strong> <a href="{{ session.video_link }}" target="_blank">Join Session</a></p>
+                        {% endif %}
+                        <div class="btn-group">
+                            <a href="{% url 'telepsych_sessions:reschedule_session' session.id %}" class="btn btn-warning">Reschedule</a>
+                            <a href="{% url 'telepsych_sessions:cancel_session' session.id %}" class="btn btn-danger">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+            <div class="alert alert-info">
+                No upcoming sessions found. Book a new session using the form above.
+            </div>
+            {% endfor %}
+
+            <h3>Past Sessions</h3>
+            {% for session in sessions %}
+                {% if not session.is_upcoming %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Session with Dr. {{ session.psychiatrist.user.get_full_name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Date & Time:</strong> {{ session.scheduled_time }}</p>
+                        <p><strong>Duration:</strong> {{ session.duration }}</p>
+                        <p><strong>Status:</strong> {{ session.get_status_display }}</p>
+                        {% if session.notes %}
+                        <p><strong>Notes:</strong> {{ session.notes }}</p>
+                        {% endif %}
+                        {% if session.status == 'COMPLETED' %}
+                        <a href="{% url 'telepsych_sessions:submit_review' session.id %}" class="btn btn-primary">Submit Review</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+            <div class="alert alert-info">
+                No past sessions found.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

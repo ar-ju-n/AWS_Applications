@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Confirm Payment</h2>
+<p>Amount: ${{ payment.amount }}</p>
+<p>Psychiatrist: {{ payment.psychiatrist.username }}</p>
+
+<form action="{% url 'confirm_payment' payment.id %}" method="post">
+    {% csrf_token %}
+    <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+            data-key="{{ STRIPE_PUBLISHABLE_KEY }}"
+            data-amount="{{ payment.amount|multiply:100 }}"
+            data-name="Telepsychiatry"
+            data-description="Payment for session"
+            data-locale="auto">
+    </script>
+</form>
+{% endblock %} 

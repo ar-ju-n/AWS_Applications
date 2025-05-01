@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body text-center">
+            <img src="{{ psychiatrist.psychiatristprofile.avatar.url|default:'/static/img/default-avatar.png' }}" class="psy-avatar mb-3" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" alt="Avatar">
+            <h2>{{ psychiatrist.user.get_full_name|default:psychiatrist.user.email }}</h2>
+            <p><strong>Specialization:</strong> {{ psychiatrist.specialization }}</p>
+            <p><strong>Hourly Rate:</strong> ${{ psychiatrist.psychiatristprofile.hourly_rate }}</p>
+            <p><strong>Bio:</strong> {{ psychiatrist.bio }}</p>
+            <!-- Add more fields as needed -->
+        </div>
+    </div>
+</div>
+{% endblock %} 

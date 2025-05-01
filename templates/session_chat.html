@@ -2,6 +2,63 @@
 {% load emoji_filters %}
 {% block content %}
 <style>
+    .chat-container {
+        background: #f5f7fa;
+        border-radius: 16px;
+        padding: 30px 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        max-width: 600px;
+        margin: 40px auto;
+    }
+    .chat-bubble {
+        display: inline-block;
+        padding: 14px 22px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+        max-width: 75%;
+        font-size: 1.1em;
+        word-break: break-word;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .chat-bubble.me {
+        background: linear-gradient(90deg, #a770ef 0%, #f6d365 100%);
+        color: #222;
+        margin-left: auto;
+        text-align: right;
+    }
+    .chat-bubble.them {
+        background: linear-gradient(90deg, #f5576c 0%, #f093fb 100%);
+        color: #fff;
+        margin-right: auto;
+        text-align: left;
+    }
+    .chat-time {
+        font-size: 0.85em;
+        color: #888;
+        margin-top: 2px;
+        margin-bottom: 8px;
+        text-align: right;
+    }
+    .message-list {
+        margin-bottom: 30px;
+    }
+    .message-notification {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 10px 18px;
+        margin-bottom: 8px;
+        font-size: 1em;
+        color: #444;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .message-notification .close {
+        color: #bbb;
+        font-size: 1.2em;
+        cursor: pointer;
+    }
     .chat-messages {
         padding: 1rem;
     }
@@ -106,42 +163,33 @@
     }
 </style>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <!-- Notification Popup -->
-            <div id="newMessageNotification" class="notification-popup">
-                New message received!
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5>Session Chat</h5>
-                    <small>With: {% if session.patient.user == user %}{{ session.psychiatrist.user.email }}{% else %}{{ session.patient.user.email }}{% endif %}</small>
-                </div>
-                <div class="input-group mb-2">
-                    <input type="text" id="chat-search" class="form-control" placeholder="Search messages...">
-                    <button type="button" class="btn btn-outline-secondary" id="chat-search-btn"><i class="bi bi-search"></i></button>
-                </div>
-                <div class="card-body" style="max-height: 350px; overflow-y: auto;" id="chat-messages">
-                    {% include 'session_chat_messages.html' %}
-                </div>
-                <div class="card-footer">
-                    <div id="typing-indicator" class="text-muted small mb-2" style="display:none;"><i class="bi bi-pencil"></i> The other user is typing...</div>
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="input-group mb-2">
-                            <button type="button" id="emoji-btn" class="btn btn-outline-secondary" title="Insert emoji"><i class="bi bi-emoji-smile"></i></button>
-                            {{ form.message }}
-                            {{ form.file }}
-                            <button type="submit" class="btn btn-primary mt-2 float-end">Send</button>
-                        </div>
-                    </form>
-                    <a href="{% url 'telepsych_sessions:patient_dashboard' %}" class="btn btn-link">Back to Dashboard</a>
-                </div>
-            </div>
+<div class="message-list">
+    {% for msg in message_list %}
+        <div class="message-notification">
+            {{ msg }}
+            <span class="close">&times;</span>
         </div>
+    {% endfor %}
+</div>
+<div class="chat-container">
+    <div class="mb-3">
+        <h4 class="mb-1">Session Chat</h4>
+        <div class="text-muted mb-2">With: {{ other_user.email }}</div>
+        <input type="text" class="form-control mb-3" placeholder="Search messages...">
     </div>
+    <div style="max-height: 350px; overflow-y: auto; padding-bottom: 10px;">
+        {% for message in messages %}
+            <div class="chat-time">{{ message.timestamp|date:"H:i" }}</div>
+            <div class="chat-bubble {% if message.sender == user %}me{% else %}them{% endif %}">
+                {{ message.message|safe }}
+            </div>
+        {% endfor %}
+    </div>
+    <form method="post" enctype="multipart/form-data" class="mt-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-2">Send</button>
+    </form>
 </div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/emoji-button.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -275,6 +323,29 @@
         }
         setInterval(pollTyping, 1500);
         pollTyping();
+
+        // Auto-dismiss message notifications after 3 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = document.querySelectorAll('.message-notification');
+            notifications.forEach(function(notification) {
+                setTimeout(function() {
+                    notification.style.opacity = '0';
+                    setTimeout(function() {
+                        notification.remove();
+                    }, 400); // Wait for fade out
+                }, 3000);
+            });
+            // Allow manual close as well
+            document.querySelectorAll('.message-notification .close').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const notif = btn.parentElement;
+                    notif.style.opacity = '0';
+                    setTimeout(function() {
+                        notif.remove();
+                    }, 400);
+                });
+            });
+        });
     });
 </script>
 {% endblock %}

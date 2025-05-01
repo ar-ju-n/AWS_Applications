@@ -1,5 +1,5 @@
 from django import forms
-from .models import Patient, Psychiatrist, CustomUser
+from .models import Patient, Psychiatrist, CustomUser, Researcher
 import json
 
 class UserProfileForm(forms.ModelForm):
@@ -13,9 +13,10 @@ class UserProfileForm(forms.ModelForm):
 class PatientProfileForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['phone_number', 'address', 'date_of_birth', 'emergency_contact', 'medical_history']
+        fields = ['phone_number', 'address', 'date_of_birth', 'gender', 'emergency_contact', 'medical_history']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'gender': forms.Select(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]),
             'medical_history': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Any relevant medical history or conditions'}),
             'emergency_contact': forms.TextInput(attrs={'placeholder': 'Emergency contact person and phone'})
         }
@@ -63,3 +64,12 @@ class PsychiatristProfileForm(forms.ModelForm):
     class Meta:
         model = Psychiatrist
         fields = ['specialization', 'license_number', 'bio']
+
+class ResearcherProfileForm(forms.ModelForm):
+    class Meta:
+        model = Researcher
+        fields = ['institution', 'research_interests', 'bio']
+        widgets = {
+            'research_interests': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Your research interests and areas of expertise'}),
+            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Your professional background and experience'})
+        }

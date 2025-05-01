@@ -1,57 +1,160 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 offset-md-2">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Book New Session</h5>
-            </div>
-            <div class="card-body">
-                <form method="post" action="{% url 'telepsych_sessions:book_session' %}">
-                    {% csrf_token %}
-                    
-                    {% if form.errors %}
-                        <div class="alert alert-danger">
-                            Please correct the following errors:
-                            {{ form.errors.as_text }}
+<style>
+    .psy-card {
+        transition: box-shadow 0.2s, transform 0.2s;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e3e6f0;
+    }
+    .psy-card:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        transform: translateY(-4px) scale(1.02);
+        border-color: #0d6efd;
+        background: #f8f9fa;
+    }
+    .psy-radio:checked + label {
+        background: #e7f1ff;
+        border-color: #0d6efd;
+    }
+    .psy-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+        border: 2px solid #0d6efd22;
+    }
+    .psy-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .btn-primary {
+        background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(252,92,125,0.08);
+    }
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #fc5c7d 0%, #6a82fb 100%);
+    }
+    .star {
+        color: #ffc107;
+        font-size: 1.1rem;
+        margin-right: 2px;
+    }
+    .badge-availability {
+        background: #e7f1ff;
+        color: #0d6efd;
+        margin-right: 0.25rem;
+        font-size: 0.85em;
+    }
+    @media (max-width: 767px) {
+        .psy-header { flex-direction: column; align-items: flex-start; }
+        .psy-avatar { margin-bottom: 0.5rem; }
+    }
+</style>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Book New Session</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'telepsych_sessions:book_session' %}">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                Please correct the following errors:
+                                {{ form.errors.as_text }}
+                            </div>
+                        {% endif %}
+                        <div class="mb-4">
+                            <h6 class="mb-3">Select a Psychiatrist</h6>
+                            <div class="row">
+                                {% for psychiatrist in available_psychiatrists %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card psy-card h-100 border-primary">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input psy-radio" type="radio" name="psychiatrist" id="psychiatrist{{ psychiatrist.id }}" value="{{ psychiatrist.id }}" required>
+                                                <label class="form-check-label w-100" for="psychiatrist{{ psychiatrist.id }}">
+                                                    <div class="psy-header">
+                                                        <img src="{{ psychiatrist.psychiatristprofile.avatar.url|default:'/static/img/default-avatar.png' }}" class="psy-avatar" alt="Avatar">
+                                                        <div>
+                                                            <strong>{{ psychiatrist.user.get_full_name|default:psychiatrist.user.email }}</strong><br>
+                                                            <span class="text-secondary small">Specialization: {{ psychiatrist.specialization }}</span><br>
+                                                            <span class="text-primary small">Hourly Rate: ${{ psychiatrist.psychiatristprofile.hourly_rate }}</span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="me-2">Rating:</span>
+                                                {% for i in "12345" %}
+                                                    {% if psychiatrist.psychiatristprofile.rating|default:0 >= i|add:'0' %}
+                                                        <span class="star">&#9733;</span>
+                                                    {% else %}
+                                                        <span class="star text-muted">&#9733;</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="mb-2">
+                                                <span class="me-2">Availability:</span>
+                                                {% for slot in psychiatrist.availability|slice:":3" %}
+                                                    <span class="badge badge-availability">{{ slot }}</span>
+                                                {% empty %}
+                                                    <span class="text-muted small">No slots listed</span>
+                                                {% endfor %}
+                                            </div>
+                                            <a href="{% url 'telepsych_sessions:view_psychiatrist_profile' psychiatrist.id %}" class="btn btn-outline-primary btn-sm mb-2">View Profile</a>
+                                            <div class="mt-2 small text-muted">{{ psychiatrist.bio|truncatewords:20 }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="alert alert-warning">No psychiatrists available at the moment.</div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                    {% endif %}
-
-                    <div class="mb-3">
-                        {{ form.psychiatrist.label_tag }}
-                        {{ form.psychiatrist }}
-                        {% if form.psychiatrist.help_text %}
-                            <small class="form-text text-muted">
-                                {{ form.psychiatrist.help_text }}
-                            </small>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.scheduled_time.label_tag }}
-                        {{ form.scheduled_time }}
-                        {% if form.scheduled_time.help_text %}
-                            <small class="form-text text-muted">
-                                {{ form.scheduled_time.help_text }}
-                            </small>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.notes.label_tag }}
-                        {{ form.notes }}
-                        {% if form.notes.help_text %}
-                            <small class="form-text text-muted">
-                                {{ form.notes.help_text }}
-                            </small>
-                        {% endif %}
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Book Session</button>
-                </form>
+                        <div class="mb-3">
+                            <label for="id_scheduled_time" class="form-label"><i class="bi bi-calendar-event" data-bs-toggle="tooltip" title="Pick a date and time"></i> Scheduled Time:</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar-date" data-bs-toggle="tooltip" title="Date/Time"></i></span>
+                                {{ form.scheduled_time }}
+                            </div>
+                            {% if form.scheduled_time.help_text %}
+                                <small class="form-text text-muted">
+                                    {{ form.scheduled_time.help_text }}
+                                </small>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_notes" class="form-label"><i class="bi bi-chat-left-text" data-bs-toggle="tooltip" title="Add notes"></i> Notes:</label>
+                            {{ form.notes }}
+                            {% if form.notes.help_text %}
+                                <small class="form-text text-muted">
+                                    {{ form.notes.help_text }}
+                                </small>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4 py-2">Book Session</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>
 {% endblock %}

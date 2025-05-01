@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ study.title }} - Study Data{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'telepsych_sessions:research_studies' %}">Research Studies</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'telepsych_sessions:study_detail' study.id %}">{{ study.title }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Study Data</li>
+                </ol>
+            </nav>
+
+            <!-- Study Overview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Study Overview</h5>
+                    <span class="badge bg-{{ study.get_status_badge }}">{{ study.get_status_display }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Participants:</strong> {{ study.current_participants }}/{{ study.target_participants }}</p>
+                            <p><strong>Surveys:</strong> {{ study.surveys.count }}</p>
+                            <p><strong>Total Responses:</strong> {{ total_responses }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Duration:</strong> {{ study.start_date|date:"Y-m-d" }} to {{ study.end_date|date:"Y-m-d"|default:"Ongoing" }}</p>
+                            <p><strong>Completion Rate:</strong> {{ completion_rate|floatformat:1 }}%</p>
+                            <p><strong>Average Response Time:</strong> {{ avg_response_time|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Export -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Export Data</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'telepsych_sessions:export_study_data' study.id %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Data Type</label>
+                                <select name="data_type" class="form-select">
+                                    <option value="all">All Data</option>
+                                    <option value="participants">Participants</option>
+                                    <option value="surveys">Surveys</option>
+                                    <option value="responses">Responses</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Format</label>
+                                <select name="format" class="form-select">
+                                    <option value="csv">CSV</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="json">JSON</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Date Range</label>
+                                <select name="date_range" class="form-select">
+                                    <option value="all">All Time</option>
+                                    <option value="last_month">Last Month</option>
+                                    <option value="last_quarter">Last Quarter</option>
+                                    <option value="last_year">Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Export Data</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Survey Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Survey Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Survey</th>
+                                    <th>Responses</th>
+                                    <th>Completion Rate</th>
+                                    <th>Average Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for survey in surveys %}
+                                <tr>
+                                    <td>{{ survey.title }}</td>
+                                    <td>{{ survey.responses.count }}</td>
+                                    <td>{{ survey.completion_rate|floatformat:1 }}%</td>
+                                    <td>{{ survey.avg_response_time|default:"N/A" }}</td>
+                                    <td>
+                                        <a href="{% url 'telepsych_sessions:survey_responses' study.id survey.id %}" 
+                                           class="btn btn-sm btn-info">View Responses</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No surveys found for this study.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participant Statistics -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Participant Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="participantStatusChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="completionRateChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Participant Status Chart
+    var statusCtx = document.getElementById('participantStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                data: {{ status_data|safe }},
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Participant Status Distribution'
+                }
+            }
+        }
+    });
+
+    // Completion Rate Chart
+    var completionCtx = document.getElementById('completionRateChart').getContext('2d');
+    new Chart(completionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ completion_labels|safe }},
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: {{ completion_data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Survey Completion Rates'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

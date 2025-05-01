@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Edit Profile</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ user_form.name.label }}</label>
+                            {{ user_form.name }}
+                            {% if user_form.name.errors %}
+                                <div class="text-danger small">{{ user_form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ user_form.email.label }}</label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                                <div class="text-danger small">{{ user_form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% if request.user.role == 'PATIENT' %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ profile_form.date_of_birth.label }}</label>
+                                {{ profile_form.date_of_birth }}
+                                {% if profile_form.date_of_birth.errors %}
+                                    <div class="text-danger small">{{ profile_form.date_of_birth.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ profile_form.gender.label }}</label>
+                                {{ profile_form.gender }}
+                                {% if profile_form.gender.errors %}
+                                    <div class="text-danger small">{{ profile_form.gender.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ profile_form.phone_number.label }}</label>
+                                {{ profile_form.phone_number }}
+                                {% if profile_form.phone_number.errors %}
+                                    <div class="text-danger small">{{ profile_form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ profile_form.address.label }}</label>
+                                {{ profile_form.address }}
+                                {% if profile_form.address.errors %}
+                                    <div class="text-danger small">{{ profile_form.address.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ profile_form.emergency_contact.label }}</label>
+                                {{ profile_form.emergency_contact }}
+                                {% if profile_form.emergency_contact.errors %}
+                                    <div class="text-danger small">{{ profile_form.emergency_contact.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ profile_form.medical_history.label }}</label>
+                                {{ profile_form.medical_history }}
+                                {% if profile_form.medical_history.errors %}
+                                    <div class="text-danger small">{{ profile_form.medical_history.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% elif request.user.role == 'PSYCHIATRIST' %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.specialization.label }}</label>
+                                {{ form.specialization }}
+                                {% if form.specialization.errors %}
+                                    <div class="text-danger small">{{ form.specialization.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.license_number.label }}</label>
+                                {{ form.license_number }}
+                                {% if form.license_number.errors %}
+                                    <div class="text-danger small">{{ form.license_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% elif request.user.role == 'RESEARCHER' %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.institution.label }}</label>
+                                {{ form.institution }}
+                                {% if form.institution.errors %}
+                                    <div class="text-danger small">{{ form.institution.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.research_interests.label }}</label>
+                                {{ form.research_interests }}
+                                {% if form.research_interests.errors %}
+                                    <div class="text-danger small">{{ form.research_interests.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.bio.label }}</label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                                <div class="text-danger small">{{ form.bio.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

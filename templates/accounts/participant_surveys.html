@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ participant.patient.user.get_full_name }} - Survey Responses{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:research_studies' %}">Research Studies</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:study_detail' study.id %}">{{ study.title }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:manage_participants' study.id %}">Participants</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'accounts:participant_detail' study.id participant.id %}">{{ participant.patient.user.get_full_name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Survey Responses</li>
+                </ol>
+            </nav>
+
+            <!-- Participant Overview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Participant Overview</h5>
+                    <span class="badge bg-{{ participant.get_status_badge }}">
+                        {{ participant.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ participant.patient.user.get_full_name }}</p>
+                    <p><strong>Study Progress:</strong> {{ participant.completed_surveys }}/{{ study.surveys.count }} surveys completed</p>
+                    <p><strong>Last Activity:</strong> {{ participant.last_activity|date:"Y-m-d H:i"|default:"No activity yet" }}</p>
+                </div>
+            </div>
+
+            <!-- Survey Responses -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Survey Responses</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="surveyAccordion">
+                        {% for survey in study.surveys.all %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ survey.id }}">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#collapse{{ survey.id }}">
+                                    {{ survey.title }}
+                                    <span class="badge ms-2 bg-{{ survey.is_active|yesno:'success,danger' }}">
+                                        {{ survey.is_active|yesno:'Active,Inactive' }}
+                                    </span>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ survey.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" 
+                                 data-bs-parent="#surveyAccordion">
+                                <div class="accordion-body">
+                                    {% with response=participant.get_survey_response survey.id %}
+                                        {% if response %}
+                                            <div class="mb-3">
+                                                <p><strong>Submitted:</strong> {{ response.submitted_at|date:"Y-m-d H:i" }}</p>
+                                                <p><strong>Time Taken:</strong> {{ response.time_taken|default:"N/A" }}</p>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Question</th>
+                                                            <th>Response</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for answer in response.answers %}
+                                                        <tr>
+                                                            <td>{{ answer.question }}</td>
+                                                            <td>{{ answer.answer }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-warning">
+                                                No response submitted for this survey.
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="alert alert-info">
+                            No surveys found for this study.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
