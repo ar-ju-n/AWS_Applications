@@ -31,23 +31,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
-    'telepsych_sessions',
-    'rest_framework',
-    'corsheaders',
-    'oidc_provider',
-    'api',
+    'telepsych_sessions.apps.TelepsychSessionsConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'aws_xray_sdk.ext.django.middleware.XRayMiddleware',
     'telepsych_sessions.middleware.ProfileCompletionMiddleware',
 ]
 
@@ -81,48 +75,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
-}
-
-# AWS Settings
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
-
-# API Gateway Settings
-API_GATEWAY_STAGE = os.getenv('API_GATEWAY_STAGE', 'dev')
-API_GATEWAY_NAME = os.getenv('API_GATEWAY_NAME', 'telepsych-api')
-
-# CORS Configuration
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = [
-    'https://api.example.com',  # Replace with your API Gateway URL
-]
-
-# Authentication Configuration
-OIDC_AUTHENTICATION_CLASS = 'oidc_provider.auth.Authentication'
-OIDC_IDTOKEN_INCLUDE_CLAIMS = True
-OIDC_IDTOKEN_SUB_GENERATOR = 'oidc_provider.lib.utils.common.default_sub_generator'
-
-# X-Ray Configuration
-XRAY_RECORDER = {
-    'AWS_XRAY_CONTEXT_MISSING': 'LOG_ERROR',
-    'AWS_XRAY_DAEMON_ADDRESS': '127.0.0.1:2000',
-}
-
-# REST Framework Configuration
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-        'oidc_provider.authentication.OIDCAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
 }
 
 AUTH_PASSWORD_VALIDATORS = [
